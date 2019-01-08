@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-%% Load Recorded Files
+% Load Recorded Files
 
 % Files properties
 path = 'inputs\';
@@ -36,11 +36,11 @@ Labels = [];
      
 for f = 1:length(names)
     
-%% Load the data
+% Load the data
     file = [names{f}, extension];
     [EEG, ~] = pop_loadbv(path, file);    
 
-    %% Frequency filter 
+    % Frequency filter 
     
     % High pass to very low frequencies removal
     [b,a]=butter(2,2/(EEG.srate/2), 'high'); % filter parameters fc = 0.1 or 2 HZ
@@ -49,13 +49,13 @@ for f = 1:length(names)
         
     end
     
-    %Low pass to remove frequency above 800 Hz
+    % Low pass to remove frequency above 800 Hz
     [b1,a1] = butter(2,800/(EEG.srate/2),'low');% filter parameters
     for ch=1:size(EEG.data,1)
         eegfilt(ch,:)=filtfilt(b1,a1,double(EEG.data(ch,:)));
     end
 
-    %% Define the zone of the ten sequences
+    % Define the zone of the ten sequences
     latency = [EEG.event.latency].';
     duration_10_sequences = 72000/0.2;
 
@@ -67,21 +67,21 @@ for f = 1:length(names)
     end
 
 
-    %% Keep only the data between the start time and the end time
+    % Keep only the data between the start time and the end time
     data = eegfilt(:, (start_time:start_time + duration_10_sequences));
 
-    %% Define the epochs 
+    % Define the epochs 
     Epochs = cell(1,90);
     for i = 1:90
         Epochs{1,i} = data(electrodes, (4000*(i-1) + 1):(4000*i));
     end
 
-    %% Remove the baseline
+    % Remove the baseline
     for i = 1:90
         Epochs{i} = Epochs{i} - mean(Epochs{i},2);   
     end
 
-    %% Fourrier Transform
+    % Fourrier Transform
     n_components = 40; % We keep 40 components from the FFT
     threshold= 300; %PSD Amplitude
 
@@ -99,7 +99,7 @@ for f = 1:length(names)
         Data_temporal = [Data_temporal; signal_temporal];
     end
 
-    %% Defintion of the sets
+    % Defintion of the sets
     for j = 1:9
         ch = int2str(j);
         if contains(names{f},ch)
